@@ -11,10 +11,10 @@ FROM ubuntu:bionic-20191029
 # ENV DEBIAN_FRONTEND=noninteractive \
 #     DEBCONF_NONINTERACTIVE_SEEN=true
 
-# #========================
-# # Miscellaneous packages
-# # Includes minimal runtime used for executing non GUI Java programs
-# #========================
+#========================
+# Miscellaneous packages
+# Includes minimal runtime used for executing non GUI Java programs
+#========================
 # RUN apt-get -qqy update \
 #   && apt-get -qqy --no-install-recommends install \
 #     bzip2 \
@@ -29,13 +29,14 @@ FROM ubuntu:bionic-20191029
 #     gnupg2 \
 #     default-jre \
 #     default-jdk \
-#     openssh-server \
-#   && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - \
-#   && apt-get install -y nodejs \
-#   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-#   && wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+#     # openssh-server \
+# #   && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - \
+# #   && apt-get install -y nodejs \
+#   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
+# #   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+# #   && wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
 
-# RUN echo "deb https://pkg.jenkins.io/debian-stable binary\n" >> /etc/apt/sources.list
+# # RUN echo "deb https://pkg.jenkins.io/debian-stable binary\n" >> /etc/apt/sources.list
 
 
 # #===================
@@ -59,13 +60,15 @@ FROM ubuntu:bionic-20191029
 RUN apt-get update && apt-get install -y openssh-server
 RUN mkdir /var/run/sshd
 RUN echo 'root:screencast' | chpasswd
-RUN sed -i 's/#PermitRootLogin/PermitRootLogin yes/' /etc/ssh/sshd_config
+# RUN sed -i 's/#PermitRootLogin/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin  yes /' /etc/ssh/sshd_config
 
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+# # SSH login fix. Otherwise user is kicked off after login
+# RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
   
-ENV NOTVISIBLE "in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
+# ENV NOTVISIBLE "in users profile"
+# RUN echo "export VISIBLE=now" >> /etc/profile
 
 
 # RUN  mkdir -p /var/run/supervisor /var/log/supervisor \
@@ -73,9 +76,9 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 #   && chgrp -R 0 /var/run/supervisor /var/log/supervisor \
 #   && chmod -R g=u /var/run/supervisor /var/log/supervisor
 
-#===================================================
+# ===================================================
 # Run the following commands as non-privileged user
-#===================================================
+# ===================================================
 # USER jenkins
 
 
