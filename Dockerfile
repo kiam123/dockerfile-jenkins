@@ -30,23 +30,21 @@ RUN apt-get -qqy update \
     default-jre \
     default-jdk \
     openssh-server \
-  && wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add - \
-  && echo "deb https://pkg.jenkins.io/debian binary/\n" >> /etc/apt/sources.list \
-  && apt-get -qqy update \
-  && apt-get -qqy --no-install-recommends install jenkins \
+#   && wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add - \
+#   && sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'  \
+#   && apt-get -qqy update \
+#   && apt-get -qqy --no-install-recommends install jenkins \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# RUN wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
-# RUN echo "deb https://pkg.jenkins.io/debian binary/\n" >> /etc/apt/sources.list
-# RUN apt-get -qqy update \
-#   && apt-get -qqy --no-install-recommends install jenkins \
-
-
+RUN wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+RUN sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+RUN apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install jenkins \
 #===================
 # Timezone settings
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
-ENV TZ "Asia/Taipei"
+ENV TZ "UTC"
 RUN echo "${TZ}" > /etc/timezone \
   && dpkg-reconfigure --frontend noninteractive tzdata
 
