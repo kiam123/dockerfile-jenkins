@@ -1,13 +1,31 @@
-FROM jenkins/base
+FROM aten/jenkins-base
+
+ARG http_port=8080
+ARG agent_port=50000
+
+ENV JENKINS_HOME /var/jenkins_home
+ENV JENKINS_WAR /usr/share/jenkins/jenkins.war
+VOLUME $JENKINS_HOME
+
+RUN mkdir -p $JENKINS_HOME \
+  && chmod -R 777 $JENKINS_HOME \
+  && chgrp -R 0 $JENKINS_HOME \
+  && chmod -R g=u $JENKINS_HOME
+
+
+COPY jenkins_service.conf /etc/supervisor/conf.d/
+COPY start_jenkins.sh /opt/bin/
+
 
 RUN wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
 RUN sudo sh -c 'echo deb https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
 RUN apt-get -qqy update
-# RUN sudo apt-get -y install software-properties-common  && \
-#     rm -rf /var/lib/apt/lists/*
-# RUN sudo add-apt-repository universe
-RUN sudo apt-get -y install jenkins
+RUN apt-get -y install jenkins
+
 
 USER jenkins
 
-EXPOSE 8080
+
+EXPOSE ${http_port}
+EXPOSE ${agent_port}
+

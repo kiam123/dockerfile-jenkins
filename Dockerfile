@@ -1,5 +1,7 @@
 FROM ubuntu:bionic-20191029
 
+ARG ssh_port=22
+
 #================================================
 # Customize sources for apt-get
 #================================================
@@ -49,6 +51,24 @@ RUN useradd -ou 0 -g 0 jenkins \
   && echo 'jenkins:asdf1234++' | chpasswd
 ENV HOME=/home/jenkins
 
+#=======================================
+# Create shared / common bin directory
+#=======================================
+RUN  mkdir -p /opt/bin 
+
+
+#======================================
+# Add script
+#======================================
+COPY entry_point.sh start_ssh.sh /opt/bin/
+RUN chmod +x /opt/bin/entry_point.sh
+
+#======================================
+# Add Supervisor configuration file
+#======================================
+COPY supervisord.conf /etc
+COPY ssh_service.conf /etc/supervisor/conf.d/
+
 
 RUN mkdir /var/run/sshd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin  yes /' /etc/ssh/sshd_config
@@ -70,5 +90,7 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor \
 # ===================================================
 
 
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
+EXPOSE ${ssh_port}
+
+
+CMD ["/opt/bin/entry_point.sh"]
